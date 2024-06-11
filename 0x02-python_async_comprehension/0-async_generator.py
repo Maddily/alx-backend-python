@@ -9,11 +9,11 @@ Each number is yielded after a 1-second delay using asyncio.sleep.
 """
 
 import random
-from typing import AsyncGenerator
+from typing import Generator
 import asyncio
 
 
-async def async_generator() -> AsyncGenerator[float, None]:
+async def async_generator() -> Generator[float, None, None]:
     """
     Asynchronous generator function that yields
     random floating-point numbers.
