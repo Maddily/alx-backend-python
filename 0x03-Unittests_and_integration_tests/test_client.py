@@ -66,6 +66,44 @@ class TestGithubOrgClient(unittest.TestCase):
 
         self.assertEqual(url, expected_url)
 
+    @patch('client.get_json')
+    def test_public_repos(self, mock_get_json):
+        """
+        Test case for the public_repos method of the GithubOrgClient class.
+
+        This test verifies that the public_repos method returns the correct
+        list of public repository names for a given GitHub organization.
+
+        Args:
+            mock_get_json: A MagicMock object representing
+            the mock of the get_json method.
+
+        Returns:
+            None
+        """
+
+        mock_get_json.return_value = [
+            {
+                "name": "todo-app"
+            },
+            {
+                "name": "calculator"
+            }
+        ]
+
+        with patch(
+            'client.GithubOrgClient._public_repos_url',
+            new_callable=PropertyMock
+        ) as mock_public_repos_url:
+            url = "https://api.github.com/orgs/test/repos"
+            mock_public_repos_url.return_value = url
+
+            client = GithubOrgClient('test')
+            self.assertEqual(client.public_repos(), ['todo-app', 'calculator'])
+            mock_public_repos_url.assert_called_once()
+
+        mock_get_json.assert_called_once()
+
 
 if __name__ == '__main__':
     unittest.main()
