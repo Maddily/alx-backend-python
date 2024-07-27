@@ -104,6 +104,37 @@ class TestGithubOrgClient(unittest.TestCase):
 
         mock_get_json.assert_called_once()
 
+    @parameterized.expand([
+        ({"license": {"key": "my_license"}},
+            "my_license", "my_license", True),
+        ({"license": {"key": "other_license"}},
+            "my_license", "other_license", False)
+    ])
+    @patch('client.access_nested_map')
+    def test_has_license(self, repo, license_key, expected_nested_map_output,
+                         expected, mock_access_nested_map):
+        """
+        Test the has_license method of the GithubOrgClient class.
+
+        Args:
+            repo (str): The name of the repository.
+            license_key (str): The license key to check for.
+            expected_nested_map_output (dict): The expected output
+            of the mock_access_nested_map function.
+            expected (bool): The expected result of the has_license method.
+            mock_access_nested_map (MagicMock): The mock object
+            for the access_nested_map function.
+
+        Returns:
+            None
+        """
+
+        mock_access_nested_map.return_value = expected_nested_map_output
+
+        self.assertEqual(
+            GithubOrgClient.has_license(repo, license_key), expected
+            )
+
 
 if __name__ == '__main__':
     unittest.main()
