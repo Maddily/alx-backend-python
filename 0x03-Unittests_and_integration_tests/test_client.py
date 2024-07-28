@@ -157,6 +157,8 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
 
         cls.mock_get.side_effect = [
             Mock(status_code=200, json=lambda: cls.org_payload),
+            Mock(status_code=200, json=lambda: cls.repos_payload),
+            Mock(status_code=200, json=lambda: cls.org_payload),
             Mock(status_code=200, json=lambda: cls.repos_payload)
         ]
 
@@ -175,6 +177,21 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
 
         client = GithubOrgClient('google')
         self.assertEqual(client.public_repos(), self.expected_repos)
+
+    def test_public_repos_with_license(self):
+        """
+        Test case to verify the public_repos method of GithubOrgClient
+        when searching for repositories with a specific license.
+
+        It creates a GithubOrgClient object for the 'google' organization,
+        and then calls the public_repos method with the license 'apache-2.0'.
+        The expected result is compared with the self.apache2_repos attribute.
+
+        This test ensures that the public_repos method correctly filters and
+        returns the repositories with the specified license.
+        """
+
+        client = GithubOrgClient('google')
         self.assertEqual(client.public_repos('apache-2.0'), self.apache2_repos)
 
 
