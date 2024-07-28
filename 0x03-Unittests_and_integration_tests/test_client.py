@@ -4,9 +4,10 @@ This module contains unit tests for the GithubOrgClient class.
 """
 
 import unittest
-from unittest.mock import patch, PropertyMock
+from unittest.mock import patch, PropertyMock, Mock
 from client import GithubOrgClient
-from parameterized import parameterized
+from parameterized import parameterized, parameterized_class
+from fixtures import TEST_PAYLOAD
 
 
 class TestGithubOrgClient(unittest.TestCase):
@@ -134,6 +135,47 @@ class TestGithubOrgClient(unittest.TestCase):
         self.assertEqual(
             GithubOrgClient.has_license(repo, license_key), expected
             )
+
+
+@parameterized_class(
+    ('org_payload', 'repos_payload', 'expected_repos', 'apache2_repos'),
+    TEST_PAYLOAD
+)
+class TestIntegrationGithubOrgClient(unittest.TestCase):
+    """
+    Test case class for integration testing of the GithubOrgClient class.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        """
+        Set up the necessary resources for the test class.
+        """
+
+        cls.get_patcher = patch('requests.get')
+        cls.mock_get = cls.get_patcher.start()
+
+        cls.mock_get.side_effect = [
+            Mock(status_code=200, json=lambda: cls.org_payload),
+            Mock(status_code=200, json=lambda: cls.repos_payload)
+        ]
+
+    @classmethod
+    def tearDownClass(cls):
+        """
+        Clean up the resources used by the test class.
+        """
+
+        cls.get_patcher.stop()
+
+    def test_public_repos(self):
+        """
+        Test the public_repos method of the GithubOrgClient class.
+        """
+
+        client = GithubOrgClient('google')
+        self.assertEqual(client.public_repos(), self.expected_repos)
+        self.assertEqual(client.public_repos('apache-2.0'), self.apache2_repos)
 
 
 if __name__ == '__main__':
